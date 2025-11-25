@@ -1,0 +1,83 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-Create-users-table
+      author: HamzaBraik01
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: role
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 002-create-clients-table
+      author: HamzaBraik01
+      changes:
+        - createTable:
+            tableName: clients
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: nom
+                  type: VARCHAR(100)
+                  constrints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: telephone
+                  type: VARCHAR(100)
+              - column:
+                  name: fidelity_level
+                  type: VARCHAR(20)
+                  defaultValue: "BASIC"
+              - column:
+                  name: total_orders
+                  type: INT
+                  defaultValueNumeric: 0
+              - column:
+                  name: total_spent
+                  type: DECIMAL(19, 2)
+                  defaultValueNumeric: 0.00
+              - column:
+                  name: user_id
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+  - changeSet:
+      id: 003-add-users-clients-fk
+      author: HamzaBraik01
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: clients
+            constraintName: fk_client_user
+            referencedColumnNames: id
+            referencedTableName: users
+
+
+
+
