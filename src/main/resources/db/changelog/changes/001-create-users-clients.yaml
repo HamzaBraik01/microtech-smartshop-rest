@@ -39,7 +39,7 @@ databaseChangeLog:
               - column:
                   name: nom
                   type: VARCHAR(100)
-                  constrints:
+                  constraints:
                     nullable: false
               - column:
                   name: email
