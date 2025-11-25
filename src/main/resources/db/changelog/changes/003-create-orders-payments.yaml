@@ -60,7 +60,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 006-create-order-items-table
-      author: youcode
+      author: HamzaBraik01
       changes:
         - createTable:
             tableName: order_items
@@ -111,7 +111,7 @@ databaseChangeLog:
 
   - changeSet:
       id: 007-create-payments-table
-      author: youcode
+      author: HamzaBraik01
       changes:
         - createTable:
             tableName: payments

@@ -1,0 +1,106 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-insert-users-data
+      author: HamzaBraik01
+      changes:
+         # Admin User (Pass: admin123)
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: "u-admin-01" }
+              - column: { name: username, value: "admin" }
+              - column: { name: mot_de_passe, value: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" }
+              - column: { name: role, value: "ADMIN" }
+        # Client User A (Pass: client123)
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: "u-client-01" }
+              - column: { name: username, value: "techsolutions" }
+              - column: { name: mot_de_passe, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
+              - column: { name: role, value: "CLIENT" }
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, value: "u-client-02" }
+              - column: { name: username, value: "infomaroc" }
+              - column: { name: mot_de_passe, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
+              - column: { name: role, value: "CLIENT" }
+
+  - changeSet:
+      id: 009-insert-clients-data
+      author: HamzaBraik01
+      changes:
+        - insert:
+            tableName: clients
+            columns:
+              - column: { name: id, value: "c-client-01" }
+              - column: { name: nom, value: "Tech Solutions SARL" }
+              - column: { name: email, value: "contact@techsolutions.com" }
+              - column: { name: telephone, value: "0600112233" }
+              - column: { name: fidelity_level, value: "BASIC" }
+              - column: { name: user_id, value: "u-client-01" }
+
+        - insert:
+            tableName: clients
+            columns:
+              - column: { name: id, value: "c-client-02" }
+              - column: { name: nom, value: "Info Maroc" }
+              - column: { name: email, value: "info@infomaroc.ma" }
+              - column: { name: telephone, value: "0655443322" }
+              - column: { name: fidelity_level, value: "BASIC" }
+              - column: { name: user_id, value: "u-client-02" }
+
+  - changeSet:
+      id: 010-insert-products-data
+      author: HamzaBraik01
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: "p-001" }
+              - column: { name: name, value: "HP EliteBook 840" }
+              - column: { name: description, value: "PC Portable professionnel i7 16GB RAM" }
+              - column: { name: price, valueNumeric: 12500.00 }
+              - column: { name: stock, valueNumeric: 10 }
+              - column: { name: is_deleted, valueBoolean: false }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: "p-002" }
+              - column: { name: name, value: "Souris Logitech MX" }
+              - column: { name: description, value: "Souris sans fil ergonomique" }
+              - column: { name: price, valueNumeric: 850.00 }
+              - column: { name: stock, valueNumeric: 50 }
+              - column: { name: is_deleted, valueBoolean: false }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: "p-003" }
+              - column: { name: name, value: "Ecran Dell 27 4K" }
+              - column: { name: description, value: "Moniteur Ultra HD USB-C" }
+              - column: { name: price, valueNumeric: 4200.00 }
+              - column: { name: stock, valueNumeric: 15 }
+              - column: { name: is_deleted, valueBoolean: false }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: "p-004" }
+              - column: { name: name, value: "Clavier Mécanique Keychron" }
+              - column: { name: description, value: "Clavier rétroéclairé RGB" }
+              - column: { name: price, valueNumeric: 1100.00 }
+              - column: { name: stock, valueNumeric: 25 }
+              - column: { name: is_deleted, valueBoolean: false }
+
+        - insert:
+            tableName: products
+            columns:
+              - column: { name: id, value: "p-005" }
+              - column: { name: name, value: "Imprimante Epson EcoTank" }
+              - column: { name: description, value: "Imprimante à réservoir sans cartouche" }
+              - column: { name: price, valueNumeric: 3500.00 }
+              - column: { name: stock, valueNumeric: 8 }
+              - column: { name: is_deleted, valueBoolean: false }
