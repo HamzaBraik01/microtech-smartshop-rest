@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changes/001-create-users-clients.yaml
   - include:
       file: db/changelog/changes/002-create-products-table.yaml
+  - include:
+      file: db/changelog/2025/003-create-orders-payments.yaml
