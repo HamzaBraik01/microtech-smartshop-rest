@@ -9,7 +9,7 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "u-admin-01" }
               - column: { name: username, value: "admin" }
-              - column: { name: mot_de_passe, value: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" }
+              - column: { name: motDePasse, value: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9" }
               - column: { name: role, value: "ADMIN" }
         # Client User A (Pass: client123)
         - insert:
@@ -17,14 +17,14 @@ databaseChangeLog:
             columns:
               - column: { name: id, value: "u-client-01" }
               - column: { name: username, value: "techsolutions" }
-              - column: { name: mot_de_passe, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
+              - column: { name: motDePasse, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
               - column: { name: role, value: "CLIENT" }
         - insert:
             tableName: users
             columns:
               - column: { name: id, value: "u-client-02" }
               - column: { name: username, value: "infomaroc" }
-              - column: { name: mot_de_passe, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
+              - column: { name: motDePasse, value: "0044585a5a73e16440f35492d334511516042125902db2a9a797079201a0709b" }
               - column: { name: role, value: "CLIENT" }
 
   - changeSet:

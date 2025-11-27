@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/smartshop
     username: postgres
-    password: 1234
+    password: ADMIN
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

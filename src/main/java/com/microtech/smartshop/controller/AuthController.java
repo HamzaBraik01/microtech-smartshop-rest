@@ -1,6 +1,6 @@
 package com.microtech.smartshop.controller;
 import com.microtech.smartshop.entity.User;
-import com.microtech.smartshop.dto.LoginRequest;
+import com.microtech.smartshop.dto.request.LoginRequest;
 import com.microtech.smartshop.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

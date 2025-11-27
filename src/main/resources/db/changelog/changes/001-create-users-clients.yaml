@@ -19,6 +19,11 @@ databaseChangeLog:
                     nullable: false
                     unique: true
               - column:
+                  name: motDePasse
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
                   name: role
                   type: VARCHAR(255)
                   constraints:
