@@ -62,6 +62,9 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new RuntimeException("Seules les commandes PENDING peuvent être confirmées");
         }
+        if (order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
+            throw new RuntimeException("Impossible de valider : La commande n'est pas totalement payée. Reste dû : " + order.getRemainingAmount());
+        }
 
         order.setStatus(OrderStatus.CONFIRMED);
 
