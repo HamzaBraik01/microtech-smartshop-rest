@@ -7,6 +7,8 @@ import com.microtech.smartshop.entity.Payment;
 import com.microtech.smartshop.enums.OrderStatus;
 import com.microtech.smartshop.enums.PaymentMethod;
 import com.microtech.smartshop.enums.PaymentStatus;
+import com.microtech.smartshop.exception.BusinessException;
+import com.microtech.smartshop.exception.ResourceNotFoundException;
 import com.microtech.smartshop.mapper.PaymentMapper;
 import com.microtech.smartshop.repository.OrderRepository;
 import com.microtech.smartshop.repository.PaymentRepository;
@@ -32,22 +34,22 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponseDTO addPayment(String orderId, PaymentRequestDTO dto) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Commande introuvable"));
 
         if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.REJECTED) {
-            throw new RuntimeException("Impossible d'ajouter un paiement à une commande annulée ou rejetée");
+            throw new BusinessException("Impossible d'ajouter un paiement à une commande annulée ou rejetée");
         }
 
         if (order.getRemainingAmount().compareTo(BigDecimal.ZERO) == 0) {
-            throw new RuntimeException("Cette commande est déjà totalement payée");
+            throw new BusinessException("Cette commande est déjà totalement payée");
         }
 
         if (dto.getAmount().compareTo(order.getRemainingAmount()) > 0) {
-            throw new RuntimeException("Le montant du paiement dépasse le reste à payer (" + order.getRemainingAmount() + " DH)");
+            throw new BusinessException("Le montant du paiement dépasse le reste à payer (" + order.getRemainingAmount() + " DH)");
         }
 
         if (dto.getMethod() == PaymentMethod.ESPECES && dto.getAmount().compareTo(new BigDecimal("20000")) > 0) {
-            throw new RuntimeException("Le paiement en espèces est limité à 20,000 DH");
+            throw new BusinessException("Le paiement en espèces est limité à 20,000 DH");
         }
 
         Payment payment = paymentMapper.toEntity(dto);

@@ -6,6 +6,8 @@ import com.microtech.smartshop.entity.Client;
 import com.microtech.smartshop.entity.User;
 import com.microtech.smartshop.enums.CustomerTier;
 import com.microtech.smartshop.enums.UserRole;
+import com.microtech.smartshop.exception.BusinessException;
+import com.microtech.smartshop.exception.ResourceNotFoundException;
 import com.microtech.smartshop.mapper.ClientMapper;
 import com.microtech.smartshop.repository.ClientRepository;
 import com.microtech.smartshop.repository.UserRepository;
@@ -66,13 +68,13 @@ public class ClientServiceImpl implements ClientService {
     public ClientResponseDTO getClientById(String id) {
         return clientRepository.findById(id)
                 .map(clientMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Client introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Client introuvable"));
     }
 
     @Override
     public ClientResponseDTO getClientByUserId(String userId) {
         return clientRepository.findByUserId(userId)
                 .map(clientMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Profil client introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil client introuvable"));
     }
 }

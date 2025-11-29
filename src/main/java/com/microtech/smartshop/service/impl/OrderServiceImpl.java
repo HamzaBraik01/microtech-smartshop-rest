@@ -7,6 +7,8 @@ import com.microtech.smartshop.entity.*;
 import com.microtech.smartshop.enums.CustomerTier;
 import com.microtech.smartshop.enums.OrderStatus;
 import com.microtech.smartshop.enums.UserRole;
+import com.microtech.smartshop.exception.BusinessException;
+import com.microtech.smartshop.exception.ResourceNotFoundException;
 import com.microtech.smartshop.mapper.OrderMapper;
 import com.microtech.smartshop.repository.ClientRepository;
 import com.microtech.smartshop.repository.OrderRepository;
@@ -174,7 +176,7 @@ public class OrderServiceImpl implements OrderService {
         boolean stockInsufficient = false;
         for (OrderItemRequestDTO itemDto : itemsDto) {
             Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Produit introuvable"));
             if (itemDto.getQuantity() > product.getStock()) stockInsufficient = true;
             OrderItem orderItem = OrderItem.builder()
                     .product(product)

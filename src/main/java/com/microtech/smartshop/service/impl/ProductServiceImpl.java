@@ -3,6 +3,7 @@ package com.microtech.smartshop.service.impl;
 import com.microtech.smartshop.dto.request.ProductRequestDTO;
 import com.microtech.smartshop.dto.response.ProductResponseDTO;
 import com.microtech.smartshop.entity.Product;
+import com.microtech.smartshop.exception.ResourceNotFoundException;
 import com.microtech.smartshop.mapper.ProductMapper;
 import com.microtech.smartshop.repository.OrderItemRepository;
 import com.microtech.smartshop.repository.ProductRepository;
@@ -30,7 +31,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO updateProduct(String id, ProductRequestDTO dto) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit introuvable"));
 
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
@@ -44,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteProduct(String id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit introuvable"));
 
         boolean hasOrders = orderItemRepository.existsByProductId(id);
 
@@ -60,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO getProductById(String id) {
         return productRepository.findById(id)
                 .map(productMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit introuvable"));
     }
 
     @Override
