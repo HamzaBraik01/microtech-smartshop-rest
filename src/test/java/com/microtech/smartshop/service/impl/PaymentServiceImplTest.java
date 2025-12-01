@@ -75,7 +75,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_Success() {
-        // Given
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
         when(paymentMapper.toEntity(any(PaymentRequestDTO.class))).thenReturn(testPayment);
         when(paymentRepository.countByOrderId("order-1")).thenReturn(0);
@@ -83,10 +82,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         PaymentResponseDTO result = paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         assertNotNull(result);
         verify(paymentRepository, times(1)).save(any(Payment.class));
         verify(orderRepository, times(1)).save(argThat(order ->
@@ -96,10 +93,8 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_OrderNotFound_ThrowsException() {
-        // Given
         when(orderRepository.findById("order-1")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -107,11 +102,9 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_CanceledOrder_ThrowsException() {
-        // Given
         testOrder.setStatus(OrderStatus.CANCELED);
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
 
-        // When & Then
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -121,11 +114,9 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_RejectedOrder_ThrowsException() {
-        // Given
         testOrder.setStatus(OrderStatus.REJECTED);
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
 
-        // When & Then
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -135,11 +126,9 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_FullyPaidOrder_ThrowsException() {
-        // Given
         testOrder.setRemainingAmount(BigDecimal.ZERO);
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
 
-        // When & Then
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -149,12 +138,10 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_ExceedsRemainingAmount_ThrowsException() {
-        // Given
         testOrder.setRemainingAmount(BigDecimal.valueOf(300));
         paymentRequestDTO.setAmount(BigDecimal.valueOf(500)); // Plus que le reste
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
 
-        // When & Then
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -164,14 +151,12 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_CashExceedsLimit_ThrowsException() {
-        // Given
         paymentRequestDTO.setMethod(PaymentMethod.ESPECES);
         paymentRequestDTO.setAmount(BigDecimal.valueOf(25000)); // Plus de 20000
         testOrder.setRemainingAmount(BigDecimal.valueOf(30000));
 
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
 
-        // When & Then
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             paymentService.addPayment("order-1", paymentRequestDTO);
         });
@@ -181,7 +166,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_CashPayment_ImmediateClearing() {
-        // Given
         paymentRequestDTO.setMethod(PaymentMethod.ESPECES);
         paymentRequestDTO.setAmount(BigDecimal.valueOf(500));
 
@@ -192,10 +176,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(paymentRepository, times(1)).save(argThat(payment ->
                 payment.getStatus() == PaymentStatus.ENCAISSE &&
                         payment.getClearingDate() != null
@@ -204,7 +186,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_CardPayment_PendingStatus() {
-        // Given
         paymentRequestDTO.setMethod(PaymentMethod.VIREMENT);
 
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
@@ -214,10 +195,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(paymentRepository, times(1)).save(argThat(payment ->
                 payment.getStatus() == PaymentStatus.EN_ATTENTE
         ));
@@ -225,7 +204,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_CheckPayment_PendingStatus() {
-        // Given
         paymentRequestDTO.setMethod(PaymentMethod.CHEQUE);
 
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
@@ -235,10 +213,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(paymentRepository, times(1)).save(argThat(payment ->
                 payment.getStatus() == PaymentStatus.EN_ATTENTE
         ));
@@ -246,7 +222,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_PaymentNumberIncreases() {
-        // Given
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(testOrder));
         when(paymentMapper.toEntity(any(PaymentRequestDTO.class))).thenReturn(testPayment);
         when(paymentRepository.countByOrderId("order-1")).thenReturn(2); // 2 paiements existants
@@ -254,18 +229,15 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(paymentRepository, times(1)).save(argThat(payment ->
-                payment.getPaymentNumber() == 3 // Le 3ème paiement
+                payment.getPaymentNumber() == 3
         ));
     }
 
     @Test
     void testAddPayment_UpdatesRemainingAmount() {
-        // Given
         testOrder.setRemainingAmount(BigDecimal.valueOf(1000));
         paymentRequestDTO.setAmount(BigDecimal.valueOf(300));
 
@@ -276,10 +248,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(orderRepository, times(1)).save(argThat(order ->
                 order.getRemainingAmount().compareTo(BigDecimal.valueOf(700)) == 0
         ));
@@ -287,7 +257,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_PartialPayments() {
-        // Given - Premier paiement de 400 sur 1000
         testOrder.setRemainingAmount(BigDecimal.valueOf(1000));
         paymentRequestDTO.setAmount(BigDecimal.valueOf(400));
 
@@ -298,10 +267,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(orderRepository, times(1)).save(argThat(order ->
                 order.getRemainingAmount().compareTo(BigDecimal.valueOf(600)) == 0
         ));
@@ -309,7 +276,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testGetPaymentsByOrder_Success() {
-        // Given
         Payment payment2 = new Payment();
         payment2.setId("payment-2");
         payment2.setAmount(BigDecimal.valueOf(300));
@@ -319,10 +285,8 @@ class PaymentServiceImplTest {
         when(paymentRepository.findByOrderId("order-1")).thenReturn(payments);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         List<PaymentResponseDTO> result = paymentService.getPaymentsByOrder("order-1");
 
-        // Then
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(paymentRepository, times(1)).findByOrderId("order-1");
@@ -330,7 +294,6 @@ class PaymentServiceImplTest {
 
     @Test
     void testAddPayment_WithSpecificPaymentDate() {
-        // Given
         LocalDateTime specificDate = LocalDateTime.of(2025, 12, 1, 10, 0);
         paymentRequestDTO.setPaymentDate(specificDate);
 
@@ -341,10 +304,8 @@ class PaymentServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
         when(paymentMapper.toDto(any(Payment.class))).thenReturn(paymentResponseDTO);
 
-        // When
         paymentService.addPayment("order-1", paymentRequestDTO);
 
-        // Then
         verify(paymentRepository, times(1)).save(argThat(payment ->
                 payment.getPaymentDate().equals(specificDate)
         ));

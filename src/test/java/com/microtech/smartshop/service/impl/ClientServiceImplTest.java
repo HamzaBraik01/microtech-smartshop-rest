@@ -84,7 +84,6 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_Success() {
-        // Given
         when(clientRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(any(ClientRequestDTO.class))).thenReturn(testClient);
@@ -96,10 +95,8 @@ class ClientServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword("password123"))
                     .thenReturn("hashedpassword");
 
-            // When
             ClientResponseDTO result = clientService.createClient(clientRequestDTO);
 
-            // Then
             assertNotNull(result);
             assertEquals("Test Client", result.getNom());
             assertEquals(CustomerTier.BASIC, result.getFidelityLevel());
@@ -110,10 +107,8 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_EmailAlreadyExists_ThrowsException() {
-        // Given
         when(clientRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testClient));
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             clientService.createClient(clientRequestDTO);
         });
@@ -124,11 +119,9 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_UsernameAlreadyExists_ThrowsException() {
-        // Given
         when(clientRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByUsername("testclient")).thenReturn(Optional.of(testUser));
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             clientService.createClient(clientRequestDTO);
         });
@@ -139,7 +132,6 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_InitializesWithBasicTier() {
-        // Given
         when(clientRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(any(ClientRequestDTO.class))).thenReturn(testClient);
@@ -151,10 +143,8 @@ class ClientServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword(anyString()))
                     .thenReturn("hashedpassword");
 
-            // When
             clientService.createClient(clientRequestDTO);
 
-            // Then
             verify(clientRepository, times(1)).save(argThat(client ->
                     client.getFidelityLevel() == CustomerTier.BASIC &&
                             client.getTotalOrders() == 0 &&
@@ -165,7 +155,6 @@ class ClientServiceImplTest {
 
     @Test
     void testGetAllClients_Success() {
-        // Given
         Client client2 = Client.builder()
                 .id("client-2")
                 .nom("Client 2")
@@ -177,10 +166,8 @@ class ClientServiceImplTest {
         when(clientRepository.findAll()).thenReturn(clients);
         when(clientMapper.toDto(any(Client.class))).thenReturn(clientResponseDTO);
 
-        // When
         List<ClientResponseDTO> result = clientService.getAllClients();
 
-        // Then
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(clientRepository, times(1)).findAll();
@@ -188,14 +175,11 @@ class ClientServiceImplTest {
 
     @Test
     void testGetClientById_Success() {
-        // Given
         when(clientRepository.findById("client-1")).thenReturn(Optional.of(testClient));
         when(clientMapper.toDto(any(Client.class))).thenReturn(clientResponseDTO);
 
-        // When
         ClientResponseDTO result = clientService.getClientById("client-1");
 
-        // Then
         assertNotNull(result);
         assertEquals("client-1", result.getId());
         verify(clientRepository, times(1)).findById("client-1");
@@ -203,10 +187,8 @@ class ClientServiceImplTest {
 
     @Test
     void testGetClientById_NotFound_ThrowsException() {
-        // Given
         when(clientRepository.findById("client-1")).thenReturn(Optional.empty());
 
-        // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             clientService.getClientById("client-1");
         });
@@ -216,24 +198,19 @@ class ClientServiceImplTest {
 
     @Test
     void testGetClientByUserId_Success() {
-        // Given
         when(clientRepository.findByUserId("user-1")).thenReturn(Optional.of(testClient));
         when(clientMapper.toDto(any(Client.class))).thenReturn(clientResponseDTO);
 
-        // When
         ClientResponseDTO result = clientService.getClientByUserId("user-1");
 
-        // Then
         assertNotNull(result);
         verify(clientRepository, times(1)).findByUserId("user-1");
     }
 
     @Test
     void testGetClientByUserId_NotFound_ThrowsException() {
-        // Given
         when(clientRepository.findByUserId("user-1")).thenReturn(Optional.empty());
 
-        // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             clientService.getClientByUserId("user-1");
         });
@@ -243,7 +220,6 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_PasswordIsHashed() {
-        // Given
         when(clientRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(any(ClientRequestDTO.class))).thenReturn(testClient);
@@ -255,10 +231,8 @@ class ClientServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword("password123"))
                     .thenReturn("hashedpassword");
 
-            // When
             clientService.createClient(clientRequestDTO);
 
-            // Then
             verify(userRepository, times(1)).save(argThat(user ->
                     user.getMotDePasse().equals("hashedpassword")
             ));
@@ -267,7 +241,6 @@ class ClientServiceImplTest {
 
     @Test
     void testCreateClient_CreatesUserWithClientRole() {
-        // Given
         when(clientRepository.findByEmail(anyString())).thenReturn(Optional.empty());
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(any(ClientRequestDTO.class))).thenReturn(testClient);
@@ -279,10 +252,8 @@ class ClientServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword(anyString()))
                     .thenReturn("hashedpassword");
 
-            // When
             clientService.createClient(clientRequestDTO);
 
-            // Then
             verify(userRepository, times(1)).save(argThat(user ->
                     user.getRole() == UserRole.CLIENT &&
                             user.getUsername().equals("testclient")

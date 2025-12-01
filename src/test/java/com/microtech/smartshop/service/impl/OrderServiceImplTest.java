@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -57,14 +58,12 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Initialisation de l'utilisateur
         testUser = User.builder()
                 .id("user-1")
                 .username("testclient")
                 .role(UserRole.CLIENT)
                 .build();
 
-        // Initialisation du client
         testClient = Client.builder()
                 .id("client-1")
                 .nom("Test Client")
@@ -75,7 +74,6 @@ class OrderServiceImplTest {
                 .user(testUser)
                 .build();
 
-        // Initialisation du produit
         testProduct = Product.builder()
                 .id("product-1")
                 .name("Test Product")
@@ -84,7 +82,6 @@ class OrderServiceImplTest {
                 .isDeleted(false)
                 .build();
 
-        // Initialisation de la requête de commande
         OrderItemRequestDTO itemRequest = new OrderItemRequestDTO();
         itemRequest.setProductId("product-1");
         itemRequest.setQuantity(5);
@@ -95,7 +92,6 @@ class OrderServiceImplTest {
 
     @Test
     void testCreateOrder_BasicClient_NoDiscount() {
-        // Given
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
         when(clientRepository.findByUserId(anyString())).thenReturn(Optional.of(testClient));
         when(productRepository.findById(anyString())).thenReturn(Optional.of(testProduct));
@@ -111,10 +107,8 @@ class OrderServiceImplTest {
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(productRepository, times(1)).findById("product-1");
@@ -122,7 +116,6 @@ class OrderServiceImplTest {
 
     @Test
     void testCreateOrder_SilverClient_WithDiscount() {
-        // Given - Client SILVER avec commande > 500
         testClient.setFidelityLevel(CustomerTier.SILVER);
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
@@ -131,7 +124,6 @@ class OrderServiceImplTest {
 
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
-            // Vérifie que la remise de 5% a été appliquée (500 * 0.05 = 25)
             BigDecimal expectedDiscount = BigDecimal.valueOf(25.00).setScale(2, RoundingMode.HALF_UP);
             assertEquals(expectedDiscount, order.getDiscountAmount());
             return order;
@@ -139,20 +131,16 @@ class OrderServiceImplTest {
 
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_GoldClient_WithDiscount() {
-        // Given - Client GOLD avec commande > 800
         testClient.setFidelityLevel(CustomerTier.GOLD);
 
-        // Modifier la quantité pour dépasser 800
         orderRequest.getItems().get(0).setQuantity(10); // 10 * 100 = 1000
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
@@ -160,27 +148,22 @@ class OrderServiceImplTest {
         when(productRepository.findById(anyString())).thenReturn(Optional.of(testProduct));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
-            // Vérifie que la remise de 10% a été appliquée (1000 * 0.10 = 100)
             BigDecimal expectedDiscount = BigDecimal.valueOf(100.00).setScale(2, RoundingMode.HALF_UP);
             assertEquals(expectedDiscount, order.getDiscountAmount());
             return order;
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_PlatinumClient_WithDiscount() {
-        // Given - Client PLATINUM avec commande > 1200
         testClient.setFidelityLevel(CustomerTier.PLATINUM);
 
-        // Modifier la quantité pour dépasser 1200
         orderRequest.getItems().get(0).setQuantity(15); // 15 * 100 = 1500
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
@@ -188,24 +171,20 @@ class OrderServiceImplTest {
         when(productRepository.findById(anyString())).thenReturn(Optional.of(testProduct));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
-            // Vérifie que la remise de 15% a été appliquée (1500 * 0.15 = 225)
             BigDecimal expectedDiscount = BigDecimal.valueOf(225.00).setScale(2, RoundingMode.HALF_UP);
             assertEquals(expectedDiscount, order.getDiscountAmount());
             return order;
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_WithPromoCode_AdditionalDiscount() {
-        // Given - Client SILVER avec code promo valide
         testClient.setFidelityLevel(CustomerTier.SILVER);
         orderRequest.setPromoCode("PROMO-ABC1");
         orderRequest.getItems().get(0).setQuantity(6); // 6 * 100 = 600 (> 500 pour remise SILVER)
@@ -215,26 +194,21 @@ class OrderServiceImplTest {
         when(productRepository.findById(anyString())).thenReturn(Optional.of(testProduct));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
-            // Vérifie que les deux remises ont été appliquées (5% + 5% = 10%)
-            // 600 * 0.10 = 60
             BigDecimal expectedDiscount = BigDecimal.valueOf(60.00).setScale(2, RoundingMode.HALF_UP);
             assertEquals(expectedDiscount, order.getDiscountAmount());
             return order;
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_InsufficientStock_OrderRejected() {
-        // Given - Stock insuffisant
-        orderRequest.getItems().get(0).setQuantity(100); // Plus que le stock disponible (50)
+        orderRequest.getItems().get(0).setQuantity(100);
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
         when(clientRepository.findByUserId(anyString())).thenReturn(Optional.of(testClient));
@@ -246,18 +220,15 @@ class OrderServiceImplTest {
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_SufficientStock_OrderPending() {
-        // Given - Stock suffisant
-        orderRequest.getItems().get(0).setQuantity(10); // Moins que le stock disponible (50)
+        orderRequest.getItems().get(0).setQuantity(10);
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
         when(clientRepository.findByUserId(anyString())).thenReturn(Optional.of(testClient));
@@ -269,17 +240,14 @@ class OrderServiceImplTest {
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testCreateOrder_TaxCalculation() {
-        // Given
         orderRequest.getItems().get(0).setQuantity(10); // 10 * 100 = 1000
 
         when(userRepository.findById(anyString())).thenReturn(Optional.of(testUser));
@@ -287,25 +255,20 @@ class OrderServiceImplTest {
         when(productRepository.findById(anyString())).thenReturn(Optional.of(testProduct));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
             Order order = invocation.getArgument(0);
-            // Vérifie que la TVA de 20% a été appliquée sur le montant après remise
-            // SubTotal: 1000, Pas de remise (BASIC), TVA: 1000 * 0.20 = 200
             BigDecimal expectedTax = BigDecimal.valueOf(200.00).setScale(2, RoundingMode.HALF_UP);
             assertEquals(expectedTax, order.getTaxAmount());
             return order;
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.createOrder(orderRequest, "user-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
     void testConfirmOrder_Success() {
-        // Given
         Order order = new Order();
         order.setId("order-1");
         order.setStatus(OrderStatus.PENDING);
@@ -334,10 +297,8 @@ class OrderServiceImplTest {
         when(clientRepository.save(any(Client.class))).thenReturn(testClient);
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         OrderResponseDTO result = orderService.confirmOrder("order-1");
 
-        // Then
         assertNotNull(result);
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(productRepository, times(1)).save(any(Product.class));
@@ -345,15 +306,13 @@ class OrderServiceImplTest {
 
     @Test
     void testConfirmOrder_WithUnpaidAmount_ThrowsException() {
-        // Given
         Order order = new Order();
         order.setId("order-1");
         order.setStatus(OrderStatus.PENDING);
-        order.setRemainingAmount(BigDecimal.valueOf(100)); // Montant impayé
+        order.setRemainingAmount(BigDecimal.valueOf(100));
 
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(order));
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> orderService.confirmOrder("order-1"));
 
@@ -362,14 +321,12 @@ class OrderServiceImplTest {
 
     @Test
     void testConfirmOrder_NonPendingOrder_ThrowsException() {
-        // Given
         Order order = new Order();
         order.setId("order-1");
-        order.setStatus(OrderStatus.CONFIRMED); // Déjà confirmée
+        order.setStatus(OrderStatus.CONFIRMED);
 
         when(orderRepository.findById("order-1")).thenReturn(Optional.of(order));
 
-        // When & Then
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> orderService.confirmOrder("order-1"));
 
@@ -378,7 +335,6 @@ class OrderServiceImplTest {
 
     @Test
     void testConfirmOrder_UpdatesClientStatistics() {
-        // Given
         Order order = new Order();
         order.setId("order-1");
         order.setStatus(OrderStatus.PENDING);
@@ -404,16 +360,13 @@ class OrderServiceImplTest {
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         orderService.confirmOrder("order-1");
 
-        // Then
         verify(clientRepository, times(1)).save(any(Client.class));
     }
 
     @Test
     void testConfirmOrder_ClientBecomesGold() {
-        // Given - Client avec 9 commandes et 4500 dépensés
         testClient.setTotalOrders(9);
         testClient.setTotalSpent(BigDecimal.valueOf(4500));
         testClient.setFidelityLevel(CustomerTier.SILVER);
@@ -422,7 +375,7 @@ class OrderServiceImplTest {
         order.setId("order-1");
         order.setStatus(OrderStatus.PENDING);
         order.setRemainingAmount(BigDecimal.ZERO);
-        order.setTotalAmount(BigDecimal.valueOf(600)); // Total: 10 commandes, 5100 dépensés
+        order.setTotalAmount(BigDecimal.valueOf(600));
         order.setClient(testClient);
         order.setItems(new ArrayList<>());
 
@@ -442,10 +395,8 @@ class OrderServiceImplTest {
         });
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderResponseDTO());
 
-        // When
         orderService.confirmOrder("order-1");
 
-        // Then
         verify(clientRepository, times(1)).save(any(Client.class));
     }
 }

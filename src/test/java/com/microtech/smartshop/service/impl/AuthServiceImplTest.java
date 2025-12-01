@@ -51,17 +51,14 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_Success() {
-        // Given
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
         try (MockedStatic<PasswordUtil> mockedPasswordUtil = mockStatic(PasswordUtil.class)) {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword("password"))
                     .thenReturn(hashedPassword);
 
-            // When
             User result = authService.authenticate(loginRequest);
 
-            // Then
             assertNotNull(result);
             assertEquals("testuser", result.getUsername());
             assertEquals(UserRole.CLIENT, result.getRole());
@@ -71,10 +68,8 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_UserNotFound_ThrowsException() {
-        // Given
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
 
-        // When & Then
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             authService.authenticate(loginRequest);
         });
@@ -85,7 +80,6 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_IncorrectPassword_ThrowsException() {
-        // Given
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
         try (MockedStatic<PasswordUtil> mockedPasswordUtil = mockStatic(PasswordUtil.class)) {
@@ -94,7 +88,6 @@ class AuthServiceImplTest {
 
             loginRequest.setPassword("wrongpassword");
 
-            // When & Then
             BusinessException exception = assertThrows(BusinessException.class, () -> {
                 authService.authenticate(loginRequest);
             });
@@ -106,10 +99,8 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_NullUsername_ThrowsException() {
-        // Given
         loginRequest.setUsername(null);
 
-        // When & Then
         assertThrows(Exception.class, () -> {
             authService.authenticate(loginRequest);
         });
@@ -117,7 +108,6 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_EmptyPassword() {
-        // Given
         loginRequest.setPassword("");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
@@ -125,7 +115,6 @@ class AuthServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword(""))
                     .thenReturn("emptyhash");
 
-            // When & Then
             BusinessException exception = assertThrows(BusinessException.class, () -> {
                 authService.authenticate(loginRequest);
             });
@@ -136,7 +125,6 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_AdminUser_Success() {
-        // Given
         User adminUser = User.builder()
                 .id("admin-1")
                 .username("admin")
@@ -153,10 +141,8 @@ class AuthServiceImplTest {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword("password"))
                     .thenReturn(hashedPassword);
 
-            // When
             User result = authService.authenticate(loginRequest);
 
-            // Then
             assertNotNull(result);
             assertEquals("admin", result.getUsername());
             assertEquals(UserRole.ADMIN, result.getRole());
@@ -165,11 +151,9 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_CaseSensitiveUsername() {
-        // Given
         loginRequest.setUsername("TestUser"); // Différence de casse
         when(userRepository.findByUsername("TestUser")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             authService.authenticate(loginRequest);
         });
@@ -177,17 +161,14 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_PasswordHashing() {
-        // Given
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
 
         try (MockedStatic<PasswordUtil> mockedPasswordUtil = mockStatic(PasswordUtil.class)) {
             mockedPasswordUtil.when(() -> PasswordUtil.hashPassword("password"))
                     .thenReturn(hashedPassword);
 
-            // When
             User result = authService.authenticate(loginRequest);
 
-            // Then
             assertNotNull(result);
             mockedPasswordUtil.verify(() -> PasswordUtil.hashPassword("password"), times(1));
         }

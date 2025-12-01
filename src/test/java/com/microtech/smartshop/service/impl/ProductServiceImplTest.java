@@ -72,15 +72,12 @@ class ProductServiceImplTest {
 
     @Test
     void testCreateProduct_Success() {
-        // Given
         when(productMapper.toEntity(any(ProductRequestDTO.class))).thenReturn(testProduct);
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         ProductResponseDTO result = productService.createProduct(productRequestDTO);
 
-        // Then
         assertNotNull(result);
         assertEquals("Test Product", result.getName());
         verify(productRepository, times(1)).save(any(Product.class));
@@ -88,25 +85,20 @@ class ProductServiceImplTest {
 
     @Test
     void testUpdateProduct_Success() {
-        // Given
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         ProductResponseDTO result = productService.updateProduct("product-1", productRequestDTO);
 
-        // Then
         assertNotNull(result);
         verify(productRepository, times(1)).save(any(Product.class));
     }
 
     @Test
     void testUpdateProduct_NotFound_ThrowsException() {
-        // Given
         when(productRepository.findById("product-1")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             productService.updateProduct("product-1", productRequestDTO);
         });
@@ -114,16 +106,13 @@ class ProductServiceImplTest {
 
     @Test
     void testUpdateProduct_UpdatesStock() {
-        // Given
         productRequestDTO.setStock(100); // Nouveau stock
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         productService.updateProduct("product-1", productRequestDTO);
 
-        // Then
         verify(productRepository, times(1)).save(argThat(product ->
             product.getStock() == 100
         ));
@@ -131,28 +120,22 @@ class ProductServiceImplTest {
 
     @Test
     void testDeleteProduct_WithoutOrders_HardDelete() {
-        // Given - Produit sans commandes associées
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(orderItemRepository.existsByProductId("product-1")).thenReturn(false);
 
-        // When
         productService.deleteProduct("product-1");
 
-        // Then
         verify(productRepository, times(1)).delete(testProduct);
         verify(productRepository, never()).save(any(Product.class));
     }
 
     @Test
     void testDeleteProduct_WithOrders_SoftDelete() {
-        // Given - Produit avec commandes associées
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(orderItemRepository.existsByProductId("product-1")).thenReturn(true);
 
-        // When
         productService.deleteProduct("product-1");
 
-        // Then
         verify(productRepository, times(1)).save(argThat(product ->
             product.getIsDeleted() == true
         ));
@@ -161,10 +144,8 @@ class ProductServiceImplTest {
 
     @Test
     void testDeleteProduct_NotFound_ThrowsException() {
-        // Given
         when(productRepository.findById("product-1")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             productService.deleteProduct("product-1");
         });
@@ -172,24 +153,19 @@ class ProductServiceImplTest {
 
     @Test
     void testGetProductById_Success() {
-        // Given
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         ProductResponseDTO result = productService.getProductById("product-1");
 
-        // Then
         assertNotNull(result);
         assertEquals("product-1", result.getId());
     }
 
     @Test
     void testGetProductById_NotFound_ThrowsException() {
-        // Given
         when(productRepository.findById("product-1")).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             productService.getProductById("product-1");
         });
@@ -197,7 +173,6 @@ class ProductServiceImplTest {
 
     @Test
     void testGetAllProducts_AsAdmin_IncludesDeletedProducts() {
-        // Given
         Product deletedProduct = Product.builder()
                 .id("product-2")
                 .name("Deleted Product")
@@ -212,10 +187,8 @@ class ProductServiceImplTest {
         when(productRepository.findByNameContainingIgnoreCase("", pageable)).thenReturn(productPage);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         Page<ProductResponseDTO> result = productService.getAllProducts("", pageable, true);
 
-        // Then
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         verify(productRepository, times(1)).findByNameContainingIgnoreCase("", pageable);
@@ -224,17 +197,14 @@ class ProductServiceImplTest {
 
     @Test
     void testGetAllProducts_AsClient_ExcludesDeletedProducts() {
-        // Given
         Page<Product> productPage = new PageImpl<>(Arrays.asList(testProduct));
         Pageable pageable = PageRequest.of(0, 10);
 
         when(productRepository.findByNameContainingIgnoreCaseAndIsDeletedFalse("", pageable)).thenReturn(productPage);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         Page<ProductResponseDTO> result = productService.getAllProducts("", pageable, false);
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         verify(productRepository, times(1)).findByNameContainingIgnoreCaseAndIsDeletedFalse("", pageable);
@@ -243,7 +213,6 @@ class ProductServiceImplTest {
 
     @Test
     void testGetAllProducts_WithSearchTerm() {
-        // Given
         Page<Product> productPage = new PageImpl<>(Arrays.asList(testProduct));
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -251,10 +220,8 @@ class ProductServiceImplTest {
                 .thenReturn(productPage);
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         Page<ProductResponseDTO> result = productService.getAllProducts("Test", pageable, false);
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         verify(productRepository, times(1))
@@ -263,23 +230,18 @@ class ProductServiceImplTest {
 
     @Test
     void testStockValidation_SufficientStock() {
-        // Given
         testProduct.setStock(100);
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productMapper.toDto(any(Product.class))).thenReturn(productResponseDTO);
 
-        // When
         ProductResponseDTO result = productService.getProductById("product-1");
 
-        // Then
         assertNotNull(result);
-        // Le produit est disponible
         verify(productRepository, times(1)).findById("product-1");
     }
 
     @Test
     void testStockValidation_LowStock() {
-        // Given
         testProduct.setStock(5);
         ProductResponseDTO lowStockDTO = new ProductResponseDTO();
         lowStockDTO.setId("product-1");
@@ -288,17 +250,14 @@ class ProductServiceImplTest {
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productMapper.toDto(any(Product.class))).thenReturn(lowStockDTO);
 
-        // When
         ProductResponseDTO result = productService.getProductById("product-1");
 
-        // Then
         assertNotNull(result);
         assertTrue(result.getStock() <= 10); // Stock faible
     }
 
     @Test
     void testStockValidation_OutOfStock() {
-        // Given
         testProduct.setStock(0);
         ProductResponseDTO outOfStockDTO = new ProductResponseDTO();
         outOfStockDTO.setId("product-1");
@@ -307,12 +266,10 @@ class ProductServiceImplTest {
         when(productRepository.findById("product-1")).thenReturn(Optional.of(testProduct));
         when(productMapper.toDto(any(Product.class))).thenReturn(outOfStockDTO);
 
-        // When
         ProductResponseDTO result = productService.getProductById("product-1");
 
-        // Then
         assertNotNull(result);
-        assertEquals(0, result.getStock()); // Rupture de stock
+        assertEquals(0, result.getStock());
     }
 }
 
