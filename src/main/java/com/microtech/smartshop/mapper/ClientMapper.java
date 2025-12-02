@@ -15,6 +15,8 @@ public interface ClientMapper {
     @Mapping(target = "fidelityLevel", ignore = true)
     @Mapping(target = "totalOrders", ignore = true)
     @Mapping(target = "totalSpent", ignore = true)
+    @Mapping(target = "firstOrderDate", ignore = true)
+    @Mapping(target = "lastOrderDate", ignore = true)
     @Mapping(target = "user", ignore = true)
     Client toEntity(ClientRequestDTO dto);
 }

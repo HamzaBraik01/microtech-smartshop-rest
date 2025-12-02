@@ -360,8 +360,8 @@ Order 1 ←→ N Payment
 #### 1. Cloner le projet
 
 ```bash
-git clone https://github.com/votre-username/smartshop.git
-cd smartshop
+git clone https://github.com/HamzaBraik01/microtech-smartshop-rest.git
+cd microtech-smartshop-rest
 ```
 
 #### 2. Créer la base de données PostgreSQL
@@ -827,7 +827,7 @@ smartshop/
 
 ```bash
 # 1. Cloner le projet
-git clone https://github.com/votre-username/smartshop.git
+git clone https://github.com/HamzaBraik01/microtech-smartshop-rest.git
 
 # 2. Créer la base de données PostgreSQL
 psql -U postgres -c "CREATE DATABASE smartshop;"
@@ -835,7 +835,7 @@ psql -U postgres -c "CREATE DATABASE smartshop;"
 # 3. Configurer application.yaml (username/password PostgreSQL)
 
 # 4. Compiler et lancer
-cd smartshop
+cd microtech-smartshop-rest
 mvn spring-boot:run
 
 # 5. Ouvrir Swagger

@@ -111,6 +111,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void updateClientStatistics(Client client, BigDecimal orderTotal) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (client.getFirstOrderDate() == null) {
+            client.setFirstOrderDate(now);
+        }
+
+        client.setLastOrderDate(now);
+
         client.setTotalOrders(client.getTotalOrders() + 1);
         client.setTotalSpent(client.getTotalSpent().add(orderTotal));
 

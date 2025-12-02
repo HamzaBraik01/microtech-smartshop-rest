@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-order-dates-to-clients
+      author: hamza
+      changes:
+        - addColumn:
+            tableName: clients
+            columns:
+              - column:
+                  name: first_order_date
+                  type: timestamp
+              - column:
+                  name: last_order_date
+                  type: timestamp
+
